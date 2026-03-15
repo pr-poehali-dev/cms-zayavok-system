@@ -39,7 +39,15 @@ def handler(event: dict, context) -> dict:
         return {"statusCode": 200, "headers": CORS, "body": ""}
 
     method = event.get("httpMethod", "GET")
-    path = event.get("path", "/").rstrip("/")
+    raw_path = event.get("path", "/")
+    # Убираем ID функции из пути: /abf93478-da2a.../auth/login → /auth/login
+    parts = raw_path.split("/")
+    # parts[0]="" parts[1]=uuid parts[2+]=route
+    if len(parts) > 2 and len(parts[1]) > 30:
+        path = "/" + "/".join(parts[2:])
+    else:
+        path = raw_path
+    path = path.rstrip("/") or "/"
     body = {}
     if event.get("body"):
         try:
