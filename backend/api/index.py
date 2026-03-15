@@ -40,10 +40,11 @@ def handler(event: dict, context) -> dict:
 
     method = event.get("httpMethod", "GET")
     raw_path = event.get("path", "/")
-    # Убираем ID функции из пути: /abf93478-da2a.../auth/login → /auth/login
+    # Убираем ID функции из пути: /{function_id}/auth/login → /auth/login
     parts = raw_path.split("/")
-    # parts[0]="" parts[1]=uuid parts[2+]=route
-    if len(parts) > 2 and len(parts[1]) > 30:
+    # parts[0]="" parts[1]=function_id parts[2+]=route
+    known_roots = ("auth", "tickets", "dashboard", "ppr", "warehouse", "clients", "users")
+    if len(parts) > 2 and parts[1] and not parts[1].startswith(known_roots):
         path = "/" + "/".join(parts[2:])
     else:
         path = raw_path
